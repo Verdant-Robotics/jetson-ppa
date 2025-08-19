@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Build and package AWSK SDK for C++ for x64
+
+# Increment this whenever the build script or Dockerfile changes
+CPACK_PACKAGE_RELEASE=1
+
+# This folder is bind-mounted from the host machine
+cd /build
+
+cmake \
+  -G Ninja \
+  -D BUILD_ONLY="transfer;s3" \
+  -D ENABLE_TESTING=OFF \
+  -D BUILD_SHARED_LIBS=ON \
+  -D CPP_STANDARD=17 \
+  -D USE_OPENSSL=ON \
+  -D CMAKE_BUILD_TYPE=Release \
+  -D CMAKE_C_FLAGS="-march=x86-64-v3" \
+  -D CMAKE_CXX_FLAGS="-march=x86-64-v3" \
+  -D CMAKE_INSTALL_PREFIX=/usr \
+  -D CMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
+  -D CPACK_BINARY_DEB=ON \
+  -D CPACK_DEBIAN_PACKAGE_DEPENDS="libcurl4-openssl-dev, libssl-dev, zlib1g-dev" \
+  -D CPACK_DEBIAN_PACKAGE_MAINTAINER="Verdant Robotics" \
+  -D CPACK_DEBIAN_PACKAGE_NAME=aws-sdk-cpp \
+  -D CPACK_GENERATOR=DEB \
+  -D CPACK_SOURCE_GENERATOR=DEB \
+  -D CPACK_PACKAGE_CONTACT="Verdant Robotics <contact@verdantrobotics.com>" \
+  -D CPACK_PACKAGE_VERSION="1.11.409" \
+  -D CPACK_PACKAGE_RELEASE="${CPACK_PACKAGE_RELEASE}" \
+  -D CPACK_PACKAGE_DESCRIPTION="AWS SDK for C++" \
+  -D CPACK_DEBIAN_PACKAGE_SHLIBDEPS=ON \
+  -D CPACK_DEBIAN_FILE_NAME="DEB-DEFAULT" \
+  /usr/src
+
+# Build aws-sdk-cpp and create a deb package
+ninja package
